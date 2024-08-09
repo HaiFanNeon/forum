@@ -4,8 +4,8 @@ import com.rainbow.exception.BaseException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = test.class)
-public class test {
+@SpringBootTest(classes = testtest.class)
+public class testtest {
 
     /**
      * 测试异常
