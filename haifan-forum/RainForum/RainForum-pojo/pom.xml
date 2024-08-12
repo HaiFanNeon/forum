@@ -24,6 +24,12 @@
             <artifactId>knife4j-spring-boot-starter</artifactId>
         </dependency>
 
+        <!--mybatis-plus-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+
 
         <!--        使用mybatisx插件生成代码后，有notnull等注解，需要添加这四个依赖可以正常使用-->
         <dependency>
