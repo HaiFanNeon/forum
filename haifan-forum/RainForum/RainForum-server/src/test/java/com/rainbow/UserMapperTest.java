@@ -1,6 +1,9 @@
 package com.rainbow;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.rainbow.entity.User;
 import com.rainbow.mapper.UserMapper;
 import com.rainbow.utils.MD5Util;
@@ -9,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -74,5 +78,53 @@ public class UserMapperTest {
     @Test
     void testDelete() {
         userMapper.deleteById(5L);
+        QueryWrapper<User> wrapper = new QueryWrapper<User>()
+                .select("id","username", "remark")
+                .like("username", "user")
+                .ge("id", 3);
+
+        List<User> users = userMapper.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void testUpdateByQueryWrapper() {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>()
+                .eq("username", "user2");
+        User user = new User();
+        user.setRemark("hello world");
+        userMapper.update(user, wrapper);
+    }
+
+    @Test
+    void testUpdateWrapper() {
+        List<Long> ids = Arrays.asList(1L, 4L);
+
+        UpdateWrapper<User> wrapper = new UpdateWrapper<User>()
+                .setSql("remark = \"UpdateWrapper\"")
+                .in("id", ids);
+        // 第一个参数可以给null，也就不填更新字段和数据，而是基于UpdateWrapper中的setSQL来更新
+        userMapper.update(null, wrapper);
+    }
+
+    @Test
+    void testLambdaQueryWrapper() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.lambda()
+                .select(User::getId, User::getUsername)
+                .like(User::getUsername, "user");
+        List<User> users = userMapper.selectList(wrapper);
+        users.forEach(System.out::println);
+
+    }
+
+    @Test
+    void testCustomWrapper() {
+        // 1.准备自定义查询条件
+        List<Long> ids = Arrays.asList(1L, 2L, 4L);
+        QueryWrapper<User> wrapper = new QueryWrapper<User>().in("id", ids);
+
+        // 2.调用mapper的自定义方法，直接传递Wrapper
+        userMapper.deductBalanceByIds("hello java", wrapper);
     }
 }
