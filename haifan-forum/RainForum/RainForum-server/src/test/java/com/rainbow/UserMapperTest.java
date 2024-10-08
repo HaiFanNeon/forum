@@ -6,7 +6,10 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.rainbow.entity.User;
 import com.rainbow.mapper.UserMapper;
+import com.rainbow.service.IUservice;
+import com.rainbow.service.impl.UserServiceImpl;
 import com.rainbow.utils.MD5Util;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,15 +21,20 @@ import java.util.Date;
 import java.util.List;
 
 @SpringBootTest
+@RequiredArgsConstructor
+
 public class UserMapperTest {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private IUservice userService;
+
     @Test
     void testInsert() {
         User user = new User();
-        user.setId(1L); // 假设id为1
-        user.setUsername("exampleUser"); // 设置用户名
+        user.setId(1000L); // 假设id为1
+        user.setUsername("exampleUser123123"); // 设置用户名
         user.setPassword(MD5Util.md5("encryptedPassword123")); // 设置加密后的密码
         user.setNickname("ExampleNickname"); // 设置昵称
         user.setPhonenum("1234567890"); // 设置手机号
@@ -52,6 +60,31 @@ public class UserMapperTest {
         System.out.println("user = " + user);
     }
 //    user = User(id=2, username=user1, password=encryptedPassword1, nickname=Nickname1, phonenum=12345678901, email=user1@example.com, gender=1, salt=encryptionSalt1, avatarurl=/path/to/avatar1.jpg, articlecount=5, isadmin=0, remark=Remark for user 1, state=0, deletestate=0, createtime=Mon Aug 12 00:00:00 CST 2024, updatetime=Mon Aug 12 00:00:00 CST 2024)
+
+
+
+    @Test
+    void createNormalUser() {
+        User user = new User();
+        user.setId(1L); // 假设id为1
+        user.setUsername("exampleUser"); // 设置用户名
+        user.setPassword(MD5Util.md5("encryptedPassword123")); // 设置加密后的密码
+        user.setNickname("ExampleNickname"); // 设置昵称
+        user.setPhonenum("1234567890"); // 设置手机号
+        user.setEmail("user@example.com"); // 设置电子邮箱
+        user.setGender(1); // 假设性别为男
+        user.setSalt("encryptionSalt"); // 设置密码盐
+        user.setAvatarurl("/path/to/avatar.jpg"); // 设置用户头像路径
+        user.setArticlecount(10); // 假设发帖数量为10
+        user.setIsadmin(0); // 假设不是管理员
+        user.setRemark("这是一个备注信息。"); // 设置备注
+        user.setState(0); // 假设状态为正常
+        user.setDeletestate(0); // 假设未被删除
+
+
+        userService.createNormalUser(user);
+    }
+
 
     // 批量查询
     @Test

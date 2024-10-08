@@ -14,6 +14,7 @@ public class MessageConstant {
     public static final String USER_EXISTS = "用户已存在";
     public static final String USER_NOT_EXISTS = "用户不存在";
     public static final String FAILED_LOGIN_PWD = "用户名或密码错误";
+    public static final String INFO_NOT_COMPLETE = "信息不全";
     public static final String USER_BANNED = "您已被禁言，请联系管理员，并重新登录";
     public static final String TWO_PWD_NOT_SAME = "两次输入的密码不一致";
     public static final String ERROR_SERVICES = "服务器内部错误";

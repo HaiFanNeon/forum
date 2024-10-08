@@ -64,4 +64,10 @@ public class UserController {
                 .list();
         return BeanUtil.copyToList(list, UserVO.class);
     }
+
+    @PostMapping("/create")
+    @ApiOperation("创建普通用户")
+    public void createNormalUser(@RequestBody UserDTO userDTO) {
+        uservice.createNormalUser(BeanUtil.copyProperties(userDTO, User.class));
+    }
 }
