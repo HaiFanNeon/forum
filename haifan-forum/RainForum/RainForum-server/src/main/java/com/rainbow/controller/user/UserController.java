@@ -3,22 +3,29 @@ package com.rainbow.controller.user;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import com.github.pagehelper.util.StringUtil;
+import com.rainbow.constant.MessageConstant;
 import com.rainbow.dto.UserDTO;
 import com.rainbow.entity.User;
 import com.rainbow.query.UserQuery;
+import com.rainbow.result.Result;
 import com.rainbow.service.IUservice;
 import com.rainbow.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @Api(tags = "用户管理接口")
+@Slf4j
 public class UserController {
     private final IUservice uservice;
 
@@ -37,9 +44,11 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ApiOperation("查询用户")
-    public UserVO queryUserById(@PathVariable("id") Long userId) {
-        User user = uservice.getById(userId);
-        return BeanUtil.copyProperties(user, UserVO.class);
+    public Result<UserVO> queryUserById(@PathVariable("id")Long id) {
+        User user = uservice.getById(id);
+        log.info(user.toString());
+        UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+        return Result.success(userVO);
     }
 
     @GetMapping
@@ -65,9 +74,15 @@ public class UserController {
         return BeanUtil.copyToList(list, UserVO.class);
     }
 
-    @PostMapping("/create")
-    @ApiOperation("创建普通用户")
-    public void createNormalUser(@RequestBody UserDTO userDTO) {
-        uservice.createNormalUser(BeanUtil.copyProperties(userDTO, User.class));
+    @PostMapping("/register")
+    @ApiOperation("注册用户")
+    public Result<String> createNormalUser(@ApiParam("注册用户信息") @NonNull @RequestBody UserDTO userDTO) {
+        User user = BeanUtil.copyProperties(userDTO, User.class);
+        if (StringUtil.isEmpty(user.getUsername()) || StringUtil.isEmpty(user.getPassword())
+        || StringUtil.isEmpty(user.getNickname())) {
+            return Result.error(MessageConstant.INFO_NOT_COMPLETE);
+        }
+        uservice.createNormalUser(user);
+        return Result.success(MessageConstant.SUCCESS);
     }
 }

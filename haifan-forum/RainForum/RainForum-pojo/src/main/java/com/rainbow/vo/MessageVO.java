@@ -1,6 +1,16 @@
 package com.rainbow.vo;
 
-public class MessageVO {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MessageVO implements Serializable {
     private Long postUserId;
     private Long receiveUserId;
     private String content;
