@@ -1,12 +1,16 @@
 server:
   port: 58080
-
 spring:
   application:
     name: 论坛系统
   output:
     ansi:
       enabled: always # 开启彩色日志
+  datasource:
+    url: jdbc:mysql://192.168.190.131:3306/forum_db?characterEncoding=utf8&useSSL=false
+    username: root
+    password: 123
+    driver-class-name: com.mysql.jdbc.Driver
 
 
 logging:
@@ -17,3 +21,4 @@ logging:
     com.haifan.forum: debug
   file:
     path: D:/logs/a_project_forum
+
