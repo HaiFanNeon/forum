@@ -1,0 +1,19 @@
+server:
+  port: 58080
+
+spring:
+  application:
+    name: 论坛系统
+  output:
+    ansi:
+      enabled: always # 开启彩色日志
+
+
+logging:
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss # 显示日期格式
+  level:
+    root: info
+    com.haifan.forum: debug
+  file:
+    path: D:/logs/a_project_forum
