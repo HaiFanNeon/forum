@@ -40,7 +40,6 @@ public class AppResult<T> {
         return new AppResult<T>(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.getMessage(), data);
     }
 
-
     public static <T> AppResult<T> success(String msg, T data) {
         return new AppResult<T>(ResultCode.SUCCESS.getCode(), msg, data);
     }
