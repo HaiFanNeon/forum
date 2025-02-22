@@ -19,6 +19,9 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,7 +78,8 @@ public class UserController {
     @PostMapping("/login")
     @ApiOperation("用户登录")
     public AppResult login(@ApiParam("username") @RequestParam("username") @NonNull String username,
-                           @ApiParam("password") @RequestParam("password") @NonNull String password) {
+                           @ApiParam("password") @RequestParam("password") @NonNull String password,
+                            HttpServletResponse response) {
 
         User user = userService.login(username, password);
 
@@ -85,6 +89,7 @@ public class UserController {
         }
 
         Map<String, Object> map = new HashMap<>();
+        log.info(user.getId().getClass().getName());
         map.put("id", user.getId());
         map.put("username", user.getUsername());
 
@@ -92,7 +97,34 @@ public class UserController {
 
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("user_token", token);
+
         return AppResult.success(tokenMap);
     }
+
+    @GetMapping("/logout")
+    @ApiOperation("/用户退出")
+    public AppResult logout() {
+        return AppResult.success();
+    }
+
+
+    @GetMapping("/info")
+    @ApiOperation("根据id查询用户信息")
+    public User getUserInfo(@ApiParam("id")
+                                @RequestParam(value = "id", required = false) Long id,
+                            HttpServletRequest request) {
+        Long userId = 0L;
+        if (id == null) {
+            String userToken = request.getHeader("user_token");
+            Claims claims = JWTUtil.parseToken(userToken);
+            Integer i = (Integer) JWTUtil.getParam(claims, "id");
+            userId = Long.valueOf(i);
+        } else {
+            userId = id;
+        }
+
+        return userService.selectById(userId);
+    }
+
 
 }

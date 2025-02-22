@@ -53,4 +53,10 @@ class UserServiceImplTest {
         User zhangsan = userService.login("zhangsan", "123456");
         log.info(zhangsan.toString());
     }
+
+    @Test
+    void selectById() {
+        User user = userService.selectById(1l);
+        log.info(user.toString());
+    }
 }

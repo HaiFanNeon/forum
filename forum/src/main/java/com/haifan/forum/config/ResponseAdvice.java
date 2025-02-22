@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.annotation.Resource;
 
-@ControllerAdvice(basePackages = "com.haifan.controller")
+@ControllerAdvice(basePackages = "com.haifan.forum.controller")
 public class ResponseAdvice implements ResponseBodyAdvice {
 
     @Resource

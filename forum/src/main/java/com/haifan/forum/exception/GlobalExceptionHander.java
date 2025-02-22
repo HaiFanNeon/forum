@@ -2,7 +2,6 @@ package com.haifan.forum.exception;
 
 import com.haifan.forum.common.AppResult;
 import com.haifan.forum.common.ResultCode;
-import javafx.application.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

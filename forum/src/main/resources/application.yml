@@ -14,6 +14,9 @@ spring:
     username: root
     password: 123
     driver-class-name: com.mysql.jdbc.Driver
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss # 日期格式
+    default-property-inclusion: non_null # 不为null时序列化
 logging:
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss # 显示日期格式
@@ -22,9 +25,11 @@ logging:
     com.haifan.forum: debug
   file:
     path: D:/logs/a_project_forum
-
-
-
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
+
+# 项目自定义相关配置
+haifan-forum:
+  login:
+    url: sign-in.html # 未登录状况下强制跳转页面
 

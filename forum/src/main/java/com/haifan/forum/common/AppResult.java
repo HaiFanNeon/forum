@@ -1,14 +1,19 @@
 package com.haifan.forum.common;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
 public class AppResult<T> {
 
+    @JsonInclude // 不论什么情况，都参与json序列化
     private int code;
+
+    @JsonInclude
     private String message;
 
+    @JsonInclude
     private T data;
 
     /**

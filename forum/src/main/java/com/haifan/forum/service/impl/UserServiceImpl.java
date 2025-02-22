@@ -9,9 +9,7 @@ import com.haifan.forum.model.User;
 import com.haifan.forum.service.IUserService;
 import com.haifan.forum.utils.MD5Util;
 import com.haifan.forum.utils.StringUtil;
-import javafx.application.Application;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -88,6 +86,24 @@ public class UserServiceImpl implements IUserService {
         }
 
         // success
+        return user;
+    }
+
+    @Override
+    public User selectById(Long id) {
+
+        if (id == null) {
+            log.warn(ResultCode.FAILED_NOT_EXISTS.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_NOT_EXISTS));
+        }
+
+        User user = userMapper.selectByPrimaryKey(id);
+
+        if (user == null) {
+            log.warn(ResultCode.FAILED_NOT_EXISTS.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_NOT_EXISTS));
+        }
+
         return user;
     }
 }

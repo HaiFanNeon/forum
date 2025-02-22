@@ -5,10 +5,12 @@ import com.haifan.forum.common.ResultCode;
 import com.haifan.forum.utils.JWTUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,19 +18,48 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class LoginInterceptor implements HandlerInterceptor {
 
+    @Value("${haifan-forum.login.url}")
+    private String defaultURL;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        String userToken = request.getHeader("user_token");
-        Claims claims = JWTUtil.parseToken(userToken);
-        if (claims == null) {
-            log.warn(ResultCode.FAILED_PARSE_TOKEN.getMessage());
+        String token = request.getHeader("user_token");
+        if (token == null) token = request.getParameter("user_token");
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("user_token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (JWTUtil.parseToken(token) == null) {
             response.setStatus(401);
             return false;
         }
-
-        log.info("解析token成功 ： " + claims.toString());
         return true;
+//        String userToken = request.getHeader("user_token");
+//        Claims claims = JWTUtil.parseToken(userToken);
+//
+//        if (claims == null) {
+////            response.sendRedirect("/" + defaultURL);
+//            response.setStatus(401);
+//            return false;
+//        }
+//
+////        if (JWTUtil.verifyTokenExpired(claims)) {
+////            log.warn(ResultCode.FAILED_TOKEN_EXPIRED.getMessage());
+////            response.sendRedirect("/" + defaultURL);
+////            return false;
+////        }
+//
+//        log.info("解析token成功 ： " + claims.toString());
+//        return true;
     }
 
     @Override

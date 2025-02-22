@@ -10,7 +10,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import javafx.application.Application;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.Key;
@@ -47,11 +46,21 @@ public class JWTUtil {
         try {
             claims = build.parseClaimsJws(token).getBody();
         } catch (ApplicationException e) {
+            e.printStackTrace();
             log.warn(ResultCode.FAILED_PARSE_TOKEN.getMessage());
             throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARSE_TOKEN));
         }
 
         return claims;
+    }
+
+    public static boolean verifyTokenExpired(Claims claims) {
+        Date expiration = claims.getExpiration();
+        if (expiration.before(new Date())) {
+            log.warn(ResultCode.FAILED_TOKEN_EXPIRED.getMessage());
+            return true;
+        }
+        return false;
     }
 
     public static Object getParam(Claims claims, String str) {
