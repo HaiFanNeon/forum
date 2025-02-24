@@ -5,6 +5,7 @@ import com.haifan.forum.common.AppResult;
 import com.haifan.forum.common.ResultCode;
 import com.haifan.forum.dao.UserMapper;
 import com.haifan.forum.exception.ApplicationException;
+import com.haifan.forum.model.Board;
 import com.haifan.forum.model.User;
 import com.haifan.forum.service.IUserService;
 import com.haifan.forum.utils.MD5Util;
@@ -105,5 +106,29 @@ public class UserServiceImpl implements IUserService {
         }
 
         return user;
+    }
+
+    @Override
+    public void addOneArticleCountById(Long id) {
+        if (id == null || id <= 0) {
+            log.warn(ResultCode.FAILED_BOARD_ARTICLE_COUNT.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_BOARD_ARTICLE_COUNT));
+        }
+
+        User user = userMapper.selectByPrimaryKey(id);
+        if (user == null) {
+            log.warn(ResultCode.ERROR_IS_NULL.getMessage() + " : " + id.toString());
+            throw new ApplicationException(AppResult.failed(ResultCode.ERROR_IS_NULL));
+        }
+
+        User updateUser = new User();
+        updateUser.setId(user.getId());
+        updateUser.setUpdateTime(new Date());
+        updateUser.setArticleCount(user.getArticleCount() + 1);
+        int i = userMapper.updateByPrimaryKeySelective(updateUser);
+        if (i != 1) {
+            log.warn(ResultCode.FAILED.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
+        }
     }
 }

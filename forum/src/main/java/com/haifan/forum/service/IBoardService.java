@@ -13,4 +13,18 @@ public interface IBoardService {
      */
     List<Board> selectByNum(Integer num);
 
+
+    /**
+     * 更新板块中的帖子数量
+     * @param id
+     */
+    void addOneArticleCountById(Long id);
+
+    /**
+     * 根据id查询出板块信息
+     * @param id
+     * @return
+     */
+    Board selectById (Long id);
+
 }

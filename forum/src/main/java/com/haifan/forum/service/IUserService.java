@@ -37,4 +37,10 @@ public interface IUserService {
      * @return 返回要查询的用户信息
      */
     User selectById(Long id);
+
+    /**
+     * 更新当前用户的发帖数
+     * @param id 用户ID
+     */
+    void addOneArticleCountById(Long id);
 }

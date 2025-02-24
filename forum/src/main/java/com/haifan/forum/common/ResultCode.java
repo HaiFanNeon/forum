@@ -22,6 +22,9 @@ public enum ResultCode {
     FAILED_TOKEN_EXPIRED (1202, "token 已过期"),
     FAILED_TOKEN_NULL(1203, "token为空"),
 
+    FAILED_BOARD_ARTICLE_COUNT (1301, "更新帖子失败"),
+    FAILED_BOARD_BANNED(1302, "板块状态异常"),
+    FAILED_BOARD_NOT_EXISTS(1303, "板块不存在"),
     ERROR_SERVICES          (2000,"服务器内部错误"),
     ERROR_IS_NULL           (2001,"IS NULL.")
     ;

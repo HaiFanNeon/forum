@@ -26,7 +26,7 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/user")
 @RestController
-@Api(tags = "用户相关接口")
+@Api(tags = "用户接口")
 public class UserController {
 
     @Resource
@@ -90,6 +90,7 @@ public class UserController {
         log.info(user.getId().getClass().getName());
         map.put("id", user.getId());
         map.put("username", user.getUsername());
+        map.put("state", user.getState());
 
         String token = JWTUtil.getToken(map);
 

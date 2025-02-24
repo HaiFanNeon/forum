@@ -7,13 +7,13 @@ import lombok.Data;
 @Data
 public class AppResult<T> {
 
-    @JsonInclude // 不论什么情况，都参与json序列化
+    @JsonInclude(JsonInclude.Include.ALWAYS) // 不论什么情况，都参与json序列化
     private int code;
 
-    @JsonInclude
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private String message;
 
-    @JsonInclude
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private T data;
 
     /**

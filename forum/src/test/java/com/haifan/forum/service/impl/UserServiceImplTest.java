@@ -1,5 +1,6 @@
 package com.haifan.forum.service.impl;
 
+import com.haifan.forum.dao.UserMapper;
 import com.haifan.forum.model.User;
 import com.haifan.forum.service.IUserService;
 import com.haifan.forum.utils.MD5Util;
@@ -58,5 +59,11 @@ class UserServiceImplTest {
     void selectById() {
         User user = userService.selectById(1l);
         log.info(user.toString());
+    }
+
+    @Test
+    @Transactional
+    void addOneArticleCountById() {
+        userService.addOneArticleCountById(1l);
     }
 }
