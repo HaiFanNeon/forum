@@ -39,8 +39,14 @@ public interface IUserService {
     User selectById(Long id);
 
     /**
-     * 更新当前用户的发帖数
+     * 当前用户的发帖数 + 1
      * @param id 用户ID
      */
     void addOneArticleCountById(Long id);
+
+    /**
+     * 当前用户的发帖数 + 1
+     * @param id
+     */
+    void subOneArticleCountById(Long id);
 }

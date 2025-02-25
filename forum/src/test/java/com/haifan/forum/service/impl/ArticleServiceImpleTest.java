@@ -35,4 +35,10 @@ class ArticleServiceImpleTest {
         List<Article> articles = articleService.selectAll();
         System.out.println(articles.toString());
     }
+
+    @Test
+    void selectDetailById() {
+        Article article = articleService.selectDetailById(2l);
+        System.out.println(article.toString());
+    }
 }

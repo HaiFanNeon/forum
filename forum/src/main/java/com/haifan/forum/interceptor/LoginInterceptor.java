@@ -1,6 +1,7 @@
 package com.haifan.forum.interceptor;
 
 
+import com.haifan.forum.common.BaseContext;
 import com.haifan.forum.common.ResultCode;
 import com.haifan.forum.utils.JWTUtil;
 import io.jsonwebtoken.Claims;
@@ -43,23 +44,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
         return true;
-//        String userToken = request.getHeader("user_token");
-//        Claims claims = JWTUtil.parseToken(userToken);
-//
-//        if (claims == null) {
-////            response.sendRedirect("/" + defaultURL);
-//            response.setStatus(401);
-//            return false;
-//        }
-//
-////        if (JWTUtil.verifyTokenExpired(claims)) {
-////            log.warn(ResultCode.FAILED_TOKEN_EXPIRED.getMessage());
-////            response.sendRedirect("/" + defaultURL);
-////            return false;
-////        }
-//
-//        log.info("解析token成功 ： " + claims.toString());
-//        return true;
     }
 
     @Override

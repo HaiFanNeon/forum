@@ -2,7 +2,9 @@ package com.haifan.forum.controller;
 
 
 import com.haifan.forum.common.AppResult;
+import com.haifan.forum.common.BaseContext;
 import com.haifan.forum.common.ResultCode;
+import com.haifan.forum.exception.ApplicationException;
 import com.haifan.forum.model.Article;
 import com.haifan.forum.model.Board;
 import com.haifan.forum.service.IArticleService;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -104,5 +107,178 @@ public class ArticleController {
         }
 
         return articles;
+    }
+
+    @GetMapping("/getDetail")
+    @ApiOperation("根据id查询帖子详情")
+    public Article getDetails (@ApiParam("articleId") @RequestParam("articleId") @NonNull Long id,
+                               HttpServletRequest request) {
+        Article article = articleService.selectDetailById(id);
+        String token = request.getHeader("user_token");
+        if (token == null) token = request.getParameter("user_token");
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("user_token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        Claims claims = JWTUtil.parseToken(token);
+        Integer t = (Integer) JWTUtil.getParam(claims, "id");
+        Long userId = t.longValue();
+
+
+        log.info(userId.toString());
+        if (article == null) {
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_ARTICLE_NOT_EXISTS));
+        }
+
+        if (Objects.equals(userId, article.getUserId())) {
+            article.setOwn(true);
+        }
+
+        return article;
+    }
+
+    @PostMapping("/modify")
+    @ApiOperation("编辑帖子")
+    public AppResult modify(@ApiParam("id") @RequestParam("articleId") @NonNull Long id,
+                       @ApiParam("title") @RequestParam("title") @NonNull String title,
+                       @ApiParam("content") @RequestParam("content") @NonNull String content,
+                       HttpServletRequest request) {
+        String token = request.getHeader("user_token");
+        if (token == null) token = request.getParameter("user_token");
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("user_token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        Claims claims = JWTUtil.parseToken(token);
+        Integer t = (Integer)JWTUtil.getParam(claims, "state");
+        Byte state = t.byteValue();
+        Integer userId = (Integer)JWTUtil.getParam(claims, "id");
+        if (state == 1) {
+            // 表示用户已经被禁言了
+            log.warn(ResultCode.FAILED_USER_BANNED.getMessage());
+            return AppResult.failed(ResultCode.FAILED_USER_BANNED);
+        }
+
+        Article article = articleService.selectById(id);
+        if (article == null) {
+            log.warn(ResultCode.FAILED_ARTICLE_NOT_EXISTS.getMessage());
+            return AppResult.failed(ResultCode.FAILED_ARTICLE_NOT_EXISTS);
+        }
+
+        if (userId.longValue() != article.getUserId()) {
+            log.warn(ResultCode.FAILED_FORBIDDEN.getMessage());
+            return AppResult.failed(ResultCode.FAILED_FORBIDDEN);
+        }
+
+        if (article.getState() == 1) {
+            log.warn(ResultCode.FAILED_ARTICLE_BANNED.getMessage());
+            return AppResult.failed(ResultCode.FAILED_ARTICLE_BANNED);
+        }
+
+        articleService.modify(id, title, content);
+        log.info("执行articleService.modify userId: " + id);
+        return AppResult.success();
+    }
+
+
+    @ApiOperation("更新点赞数")
+    @PostMapping("/thumbsUp")
+    public AppResult thumbsUp (@ApiParam("articleId") @RequestParam("id") @NonNull Long id,
+                               HttpServletRequest request) {
+        String token = request.getHeader("user_token");
+        if (token == null) token = request.getParameter("user_token");
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("user_token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        Claims claims = JWTUtil.parseToken(token);
+        Integer t = (Integer)JWTUtil.getParam(claims, "state");
+        Byte state = t.byteValue();
+        Integer userId = (Integer)JWTUtil.getParam(claims, "id");
+        if (state == 1) {
+            // 表示用户已经被禁言了
+            log.warn(ResultCode.FAILED_USER_BANNED.getMessage());
+            return AppResult.failed(ResultCode.FAILED_USER_BANNED);
+        }
+
+        Article article = articleService.selectById(id);
+        if (article == null) {
+            log.warn(ResultCode.FAILED_ARTICLE_NOT_EXISTS.getMessage());
+            return AppResult.failed(ResultCode.FAILED_ARTICLE_NOT_EXISTS);
+        }
+
+        if (article.getState() == 1) {
+            log.warn(ResultCode.FAILED_ARTICLE_BANNED.getMessage());
+            return AppResult.failed(ResultCode.FAILED_ARTICLE_BANNED);
+        }
+
+        articleService.thumbsUpById(id);
+        return AppResult.success();
+    }
+
+
+    @ApiOperation("删除帖子")
+    @PostMapping("/deleteById")
+    public AppResult deleteById (@ApiParam("articleId") @RequestParam("id") @NonNull Long id,
+                                 HttpServletRequest request) {
+
+
+        String token = request.getHeader("user_token");
+        if (token == null) token = request.getParameter("user_token");
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("user_token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        Claims claims = JWTUtil.parseToken(token);
+        Integer t = (Integer)JWTUtil.getParam(claims, "state");
+        Byte state = t.byteValue();
+        Integer userId = (Integer)JWTUtil.getParam(claims, "id");
+        if (state == 1) {
+            // 表示用户已经被禁言了
+            log.warn(ResultCode.FAILED_USER_BANNED.getMessage());
+            return AppResult.failed(ResultCode.FAILED_USER_BANNED);
+        }
+
+        Article article = articleService.selectById(id);
+        if (article == null || article.getDeleteState() == 1) {
+            log.warn(ResultCode.FAILED_ARTICLE_NOT_EXISTS.getMessage());
+            return AppResult.failed(ResultCode.FAILED_ARTICLE_NOT_EXISTS);
+        }
+
+        if (userId.longValue() != article.getUserId()) {
+            log.warn(ResultCode.FAILED_FORBIDDEN.getMessage());
+            return AppResult.failed(ResultCode.FAILED_FORBIDDEN);
+        }
+
+        articleService.deleteById(id);
+        return AppResult.success();
     }
 }

@@ -131,4 +131,29 @@ public class UserServiceImpl implements IUserService {
             throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
         }
     }
+
+    @Override
+    public void subOneArticleCountById(Long id) {
+        if (id == null || id <= 0) {
+            log.warn(ResultCode.FAILED_BOARD_ARTICLE_COUNT.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_BOARD_ARTICLE_COUNT));
+        }
+
+        User user = userMapper.selectByPrimaryKey(id);
+        if (user == null) {
+            log.warn(ResultCode.ERROR_IS_NULL.getMessage() + " : " + id.toString());
+            throw new ApplicationException(AppResult.failed(ResultCode.ERROR_IS_NULL));
+        }
+
+        User updateUser = new User();
+        updateUser.setId(user.getId());
+        updateUser.setUpdateTime(new Date());
+        updateUser.setArticleCount(Math.max((user.getArticleCount() - 1), 0));
+
+        int i = userMapper.updateByPrimaryKeySelective(updateUser);
+        if (i != 1) {
+            log.warn(ResultCode.FAILED.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
+        }
+    }
 }

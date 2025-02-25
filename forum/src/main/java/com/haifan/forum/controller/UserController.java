@@ -2,6 +2,7 @@ package com.haifan.forum.controller;
 
 
 import com.haifan.forum.common.AppResult;
+import com.haifan.forum.common.BaseContext;
 import com.haifan.forum.common.ResultCode;
 import com.haifan.forum.model.User;
 import com.haifan.forum.service.IUserService;
@@ -96,7 +97,6 @@ public class UserController {
 
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("user_token", token);
-
         return AppResult.success(tokenMap);
     }
 

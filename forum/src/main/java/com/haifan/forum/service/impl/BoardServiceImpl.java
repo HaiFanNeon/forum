@@ -59,6 +59,30 @@ public class BoardServiceImpl implements IBoardService {
     }
 
     @Override
+    public void subOneArticleCountById(Long id) {
+        if (id == null || id <= 0) {
+            log.warn(ResultCode.FAILED_BOARD_ARTICLE_COUNT.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_BOARD_ARTICLE_COUNT));
+        }
+
+        Board board = boardMapper.selectByPrimaryKey(id);
+        if (board == null) {
+            log.warn(ResultCode.ERROR_IS_NULL.getMessage() + " : " + id.toString());
+            throw new ApplicationException(AppResult.failed(ResultCode.ERROR_IS_NULL));
+        }
+
+        Board updateBoard = new Board();
+        updateBoard.setId(board.getId());
+        updateBoard.setUpdateTime(new Date());
+        updateBoard.setArticleCount(Math.max(0, board.getArticleCount() - 1));
+        int i = boardMapper.updateByPrimaryKeySelective(updateBoard);
+        if (i != 1) {
+            log.warn(ResultCode.FAILED.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
+        }
+    }
+
+    @Override
     public Board selectById(Long id) {
         if (id == null || id <= 0) {
             log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());

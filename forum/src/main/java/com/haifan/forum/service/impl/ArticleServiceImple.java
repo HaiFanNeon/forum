@@ -16,6 +16,7 @@ import com.haifan.forum.service.IUserService;
 import com.haifan.forum.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -83,5 +84,124 @@ public class ArticleServiceImple implements IArticleService {
     @Override
     public List<Article> selectAll() {
         return articleMapper.selectAll();
+    }
+
+    @Override
+    public Article selectDetailById(Long id) {
+        if (id == null || id <= 0) {
+            log.warn(ResultCode.FAILED_BOARD_ARTICLE_COUNT.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_BOARD_ARTICLE_COUNT));
+        }
+
+        Article article = articleMapper.selectDetailById(id);
+        if (article == null) {
+            log.warn(ResultCode.FAILED_ARTICLE_NOT_EXISTS.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_ARTICLE_NOT_EXISTS));
+        }
+        log.info(article.getContent());
+        Article updateArticle = new Article();
+        updateArticle.setId(article.getId());
+        updateArticle.setVisitCount(article.getVisitCount() + 1);
+        int i = articleMapper.updateByPrimaryKeySelective(updateArticle);
+        if (i != 1) {
+            log.warn(ResultCode.ERROR_SERVICES.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.ERROR_SERVICES));
+        }
+
+        article.setVisitCount(article.getVisitCount() + 1);
+
+        return article;
+    }
+
+    @Override
+    public void modify(Long id, String title, String content) {
+        if (id == null || id <= 0 || StringUtil.isEmpty(title) || StringUtil.isEmpty(content)) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        Article updateArticle = new Article();
+        updateArticle.setId(id);
+        updateArticle.setTitle(title);
+        updateArticle.setContent(content);
+        updateArticle.setUpdateTime(new Date());
+
+        int i = articleMapper.updateByPrimaryKeySelective(updateArticle);
+        if (i != 1) {
+            log.warn(ResultCode.ERROR_SERVICES.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.ERROR_SERVICES));
+        }
+
+    }
+
+    @Override
+    public Article selectById (Long id) {
+        if (id == null || id <= 0) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        return articleMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public void thumbsUpById(Long id) {
+        if (id == null || id <= 0) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        Article article = articleMapper.selectByPrimaryKey(id);
+        if (article == null) {
+            log.warn(ResultCode.FAILED_ARTICLE_NOT_EXISTS.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_ARTICLE_NOT_EXISTS));
+        }
+
+        if (article.getState() == 1 || article.getDeleteState() == 1) {
+            log.warn(ResultCode.FAILED_ARTICLE_BANNED.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_ARTICLE_BANNED));
+        }
+
+        Article updateArticle = new Article();
+        updateArticle.setId(article.getId());
+        updateArticle.setLikeCount(article.getLikeCount() + 1);
+        updateArticle.setUpdateTime(new Date());
+
+        int i = articleMapper.updateByPrimaryKeySelective(updateArticle);
+        if (i != 1) {
+            log.warn(ResultCode.ERROR_SERVICES.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.ERROR_SERVICES));
+        }
+
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (id == null || id <= 0) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        Article article = articleMapper.selectByPrimaryKey(id);
+        if(article == null || article.getDeleteState() == 1) {
+            log.warn(ResultCode.FAILED_BOARD_NOT_EXISTS.getMessage());
+
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_BOARD_NOT_EXISTS));
+        }
+
+        Article updateArticle = new Article();
+
+        updateArticle.setId(article.getId());
+        updateArticle.setDeleteState((byte)1);
+        int i = articleMapper.updateByPrimaryKeySelective(updateArticle);
+        if (i != 1) {
+            log.warn(ResultCode.ERROR_SERVICES.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.ERROR_SERVICES));
+        }
+
+        boardService.subOneArticleCountById(article.getBoardId());
+        userService.subOneArticleCountById(article.getUserId());
+        log.info("删除帖子成功 [boardId] : " + article.getBoardId() + " [userId] : " + article.getUserId());
+
     }
 }
