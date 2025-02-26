@@ -26,6 +26,8 @@ public interface IBoardService {
      */
     void subOneArticleCountById(Long id);
 
+
+
     /**
      * 根据id查询出板块信息
      * @param id
