@@ -10,10 +10,18 @@ import com.haifan.forum.model.User;
 import com.haifan.forum.service.IUserService;
 import com.haifan.forum.utils.MD5Util;
 import com.haifan.forum.utils.StringUtil;
+import com.haifan.forum.utils.UUIDUtil;
+import com.sun.org.apache.xml.internal.security.encryption.EncryptedType;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 
@@ -156,4 +164,106 @@ public class UserServiceImpl implements IUserService {
             throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
         }
     }
+
+    @Override
+    public void modifyInfo(User user) {
+        if (user == null || user.getId() == null || user.getId() <= 0 ) {
+            log.warn(ResultCode.FAILED_BOARD_ARTICLE_COUNT.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_BOARD_ARTICLE_COUNT));
+        }
+
+        User existsUser = userMapper.selectByPrimaryKey(user.getId());
+        if (existsUser == null) {
+            log.warn(ResultCode.FAILED_USER_NOT_EXISTS.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_USER_NOT_EXISTS));
+        }
+        boolean checkAttr = false;
+
+        User updateUser = new User();
+        updateUser.setId(user.getId());
+
+        if (!StringUtil.isEmpty(user.getUsername()) &&
+         !existsUser.getUsername().equals(user.getUsername())) {
+            User checkUser = userMapper.selectByUserName(user.getUsername());
+            if (checkUser != null) {
+                log.warn(ResultCode.FAILED_USER_NOT_EXISTS.getMessage());
+                throw  new ApplicationException(AppResult.failed(ResultCode.FAILED_USER_NOT_EXISTS));
+            }
+
+            updateUser.setUsername(user.getUsername());
+            checkAttr = true;
+        }
+
+        if (!StringUtil.isEmpty(user.getNickname()) && !existsUser.getNickname().equals(user.getNickname())) {
+            updateUser.setNickname(user.getNickname());
+            checkAttr = true;
+        }
+
+        if (user.getGender() != null && existsUser.getGender() != user.getGender()) {
+            updateUser.setGender(user.getGender());
+            checkAttr = true;
+        }
+
+        if (!StringUtil.isEmpty(user.getEmail()) && !existsUser.getEmail().equals(user.getEmail())) {
+            updateUser.setEmail(user.getEmail());
+            checkAttr = true;
+        }
+
+        if (!StringUtil.isEmpty(user.getPhoneNum()) && !existsUser.getPhoneNum().equals(user.getPhoneNum())) {
+            updateUser.setPhoneNum(user.getPhoneNum());
+            checkAttr = true;
+        }
+
+        if (!StringUtil.isEmpty(user.getRemark()) && !existsUser.getRemark().equals(user.getRemark())) {
+            updateUser.setRemark(user.getRemark());
+            checkAttr = true;
+        }
+
+        if (!checkAttr) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        int i = userMapper.updateByPrimaryKeySelective(updateUser);
+        if (i != 1) {
+            log.warn(ResultCode.FAILED.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
+        }
+    }
+
+    @Override
+    public void modifyPassword(Long userId, String oldPassword, String newPassword) {
+        if (userId == null || userId <= 0 || StringUtil.isEmpty(oldPassword) || StringUtil.isEmpty(newPassword)) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user == null || user.getDeleteState() == 1) {
+            log.warn(ResultCode.FAILED_USER_NOT_EXISTS.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_USER_NOT_EXISTS));
+        }
+
+        String oldEncryptPassword = MD5Util.md5Salt(oldPassword, user.getSalt());
+
+        if (!oldEncryptPassword.equalsIgnoreCase(user.getPassword())) {
+            log.warn(ResultCode.FAILED.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
+        }
+
+        String salt = UUIDUtil.UUID_32();
+        String encryptPassword = MD5Util.md5Salt(newPassword, salt);
+        User updateUser = new User();
+        updateUser.setId(userId);
+        updateUser.setSalt(salt);
+        updateUser.setPassword(encryptPassword);
+
+        int i = userMapper.updateByPrimaryKeySelective(updateUser);
+        if (i != 1) {
+            log.warn(ResultCode.FAILED.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED));
+        }
+    }
+
+
 }

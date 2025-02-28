@@ -66,4 +66,19 @@ class UserServiceImplTest {
     void addOneArticleCountById() {
         userService.addOneArticleCountById(1l);
     }
+
+    @Test
+//    @Transactional
+    void modifyInfo() {
+        User user = new User();
+        user.setId(20L);
+        user.setNickname("哈哈哈哈");
+        userService.modifyInfo(user);
+    }
+
+    @Test
+    void modifyPassword() {
+        userService.modifyPassword(2l, "123456", "111111");
+
+    }
 }

@@ -281,4 +281,33 @@ public class ArticleController {
         articleService.deleteById(id);
         return AppResult.success();
     }
+
+    @GetMapping("/getAllByUserId")
+    @ApiOperation("获取用户的帖子列表")
+    public AppResult getAllByUserId (HttpServletRequest request,
+                                     @ApiParam("userId") @RequestParam(value = "userId", required = false) Long userId) {
+        if (userId == null) {
+            String token = request.getHeader("user_token");
+
+            if (token == null) token = request.getParameter("user_token");
+            if (token == null) {
+                Cookie[] cookies = request.getCookies();
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("user_token")) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+
+            Claims claims = JWTUtil.parseToken(token);
+            Integer id = (Integer) JWTUtil.getParam(claims, "id");
+            userId = id.longValue();
+        }
+
+
+        List<Article> articles = articleService.selectByUserId(userId);
+
+        return AppResult.success(articles);
+    }
 }

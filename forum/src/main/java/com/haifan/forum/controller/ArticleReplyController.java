@@ -14,15 +14,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -82,6 +80,21 @@ public class ArticleReplyController {
 
         articleReplyService.create(articleReply);
         return AppResult.success();
+    }
+
+
+    @ApiOperation("获取回复列表")
+    @GetMapping("/getRelies")
+    public AppResult getRepliesByArticleId (@ApiParam("articleId") @RequestParam("articleId") @NonNull Long articleId) {
+
+        Article article = articleService.selectById(articleId);
+        if (article == null || article.getDeleteState() == 1) {
+            return AppResult.failed(ResultCode.FAILED_ARTICLE_NOT_EXISTS);
+        }
+
+        List<ArticleReply> articleReplies = articleReplyService.selectByArticleId(articleId);
+
+        return AppResult.success(articleReplies);
     }
 
 }

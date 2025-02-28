@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.xml.transform.Result;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -52,5 +54,18 @@ public class ArticleReplyServiceImpl implements IArticleReplyService {
         articleService.addOneReplyCountById(articleReply.getArticleId());
 
         log.info("回复成功, articleId : " + articleReply.getArticleId());
+    }
+
+    @Override
+    public List<ArticleReply> selectByArticleId(Long articleId) {
+        if (articleId == null || articleId <= 0) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        List<ArticleReply> articleReplies = articleReplyMapper.selectByArticleId(articleId);
+
+        return articleReplies;
     }
 }

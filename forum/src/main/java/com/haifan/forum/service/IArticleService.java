@@ -1,6 +1,7 @@
 package com.haifan.forum.service;
 
 import com.haifan.forum.model.Article;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -54,4 +55,11 @@ public interface IArticleService {
      * @param id
      */
     void addOneReplyCountById(Long id);
+
+    /**
+     * 根据用户Id查询帖子列表
+     * @param userId
+     * @return
+     */
+    List<Article> selectByUserId (@Param("userId") Long userId);
 }

@@ -4,6 +4,7 @@ package com.haifan.forum.controller;
 import com.haifan.forum.common.AppResult;
 import com.haifan.forum.common.BaseContext;
 import com.haifan.forum.common.ResultCode;
+import com.haifan.forum.dao.UserMapper;
 import com.haifan.forum.model.User;
 import com.haifan.forum.service.IUserService;
 import com.haifan.forum.utils.JWTUtil;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -125,5 +127,114 @@ public class UserController {
         return userService.selectById(userId);
     }
 
+
+    /**
+     * 修改个人信息
+     * @param username
+     * @param nicknanme
+     * @param gender
+     * @param email
+     * @param phoneNum
+     * @param remark
+     * @return
+     */
+    @PostMapping("/modifyInfo")
+    @ApiOperation("修改个人信息")
+    public AppResult modifyInfo (@ApiParam("username") @RequestParam(value = "username", required = false) String username,
+                                 @ApiParam("nickname") @RequestParam(value = "nickname", required = false) String nickname,
+                                 @ApiParam("gender") @RequestParam(value = "gender", required = false) Byte gender,
+                                 @ApiParam("email") @RequestParam(value = "email", required = false) String email,
+                                 @ApiParam("phoneNum") @RequestParam(value = "phoneNum", required = false) String phoneNum,
+                                 @ApiParam("remark") @RequestParam(value = "remark", required = false) String remark,
+                                 HttpServletRequest request) {
+
+        String token = request.getHeader("user_token");
+
+        if (token == null) token = request.getParameter("user_token");
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("user_token")) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        Claims claims = JWTUtil.parseToken(token);
+        Integer id = (Integer) JWTUtil.getParam(claims, "id");
+        Long userId = id.longValue();
+
+        User user = new User();
+        user.setId(userId);
+        boolean check = false;
+        if (!StringUtil.isEmpty(username)) {
+            user.setUsername(username);
+            check = true;
+        }
+        if (!StringUtil.isEmpty(nickname)) {
+            user.setNickname(nickname);
+            check = true;
+
+        }
+        if (!StringUtil.isEmpty(email)) {
+            user.setEmail(email);
+            check = true;
+
+        }
+        if (!StringUtil.isEmpty(phoneNum)) {
+            user.setPhoneNum(phoneNum);
+            check = true;
+        }
+        if (!StringUtil.isEmpty(remark)) {
+            user.setRemark(remark);
+            check = true;
+        }
+
+        if (gender != null) {
+            user.setGender(gender);
+            check = true;
+        }
+        if (check) {
+            userService.modifyInfo(user);
+
+        } else {
+            return AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE);
+        }
+        User retUser = userService.selectById(userId);
+        return AppResult.success(retUser);
+    }
+
+    @PostMapping("/modifyPassword")
+    @ApiOperation("修改密码")
+    public AppResult modifyPassword (HttpServletRequest request,
+                                     @ApiParam("oldPassword") @RequestParam("oldPassword") @NonNull String oldPassword,
+                                     @ApiParam("newPassword") @RequestParam("newPassword") @NonNull String newPassword,
+                                     @ApiParam("passwordRepeat") @RequestParam("passwordRepeat") @NonNull String passwordRepeat) {
+        if (!newPassword.equals(passwordRepeat)) {
+            return AppResult.failed(ResultCode.FAILED_TWO_PWD_NOT_SAME);
+        }
+
+
+        String token = request.getHeader("user_token");
+
+        if (token == null) token = request.getParameter("user_token");
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("user_token")) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        Claims claims = JWTUtil.parseToken(token);
+        Integer id = (Integer) JWTUtil.getParam(claims, "id");
+        Long userId = id.longValue();
+
+        userService.modifyPassword(userId, oldPassword, newPassword);
+        return AppResult.success();
+    }
 
 }

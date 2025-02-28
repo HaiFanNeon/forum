@@ -232,4 +232,20 @@ public class ArticleServiceImpl implements IArticleService {
             throw new ApplicationException(AppResult.failed(ResultCode.ERROR_SERVICES));
         }
     }
+
+    @Override
+    public List<Article> selectByUserId(Long userId) {
+        if (userId == null || userId <= 0) {
+            log.warn(ResultCode.FAILED_PARAMS_VALIDATE.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_PARAMS_VALIDATE));
+        }
+
+        User user = userService.selectById(userId);
+        if (user == null) {
+            log.warn(ResultCode.FAILED_USER_NOT_EXISTS.getMessage());
+            throw new ApplicationException(AppResult.failed(ResultCode.FAILED_USER_NOT_EXISTS));
+        }
+
+        return articleMapper.selectByUserId(userId);
+    }
 }
