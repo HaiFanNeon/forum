@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haifan.forum.dao.MessageMapper">
+
+    <resultMap id="allInfoResultMap" type="com.haifan.forum.model.Message" extends="BaseResultMap">
+        <association property="postUser" resultMap="com.haifan.forum.dao.UserMapper.BaseResultMap" columnPrefix="u_"></association>
+    </resultMap>
+
+    <!--根据用户id查询该用户未读数量-->
+    <select id="selectUnreadCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(*) from t_message
+        where state = 0
+        and deleteState = 0
+        and receiveUserId = #{receiveUserId, jdbcType=BIGINT}
+    </select>
+
+    <!--根据接收者id查询站内信息列表-->
+    <select id="selectByReceiveUserId" parameterType="java.lang.Long" resultMap="allInfoResultMap">
+        select
+            u.id as u_id,
+            u.nickname as u_nickname,
+            u.avatarUrl as u_avatarUrl,
+            u.gender as u_gender,
+            m.id,
+            m.postUserId,
+            m.receiveUserId,
+            m.content,
+            m.state,
+            m.createTime,
+            m.updateTime
+        from t_message m, t_user u
+        where m.postUserId = u.id
+          and m.deleteState = 0
+          and m.receiveUserId = #{receiveUserId, jdbcType=BIGINT}
+        order by m.createTime desc, m.state asc;
+    </select>
+</mapper>

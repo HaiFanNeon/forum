@@ -11,17 +11,12 @@ import com.haifan.forum.service.IUserService;
 import com.haifan.forum.utils.MD5Util;
 import com.haifan.forum.utils.StringUtil;
 import com.haifan.forum.utils.UUIDUtil;
-import com.sun.org.apache.xml.internal.security.encryption.EncryptedType;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.NonNull;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+
 import java.util.Date;
 
 

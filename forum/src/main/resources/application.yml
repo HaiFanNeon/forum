@@ -24,7 +24,7 @@ logging:
     root: info
     com.haifan.forum: debug
   file:
-    path: D:/logs/a_project_forum
+    path: /root/forum/logs
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
 
